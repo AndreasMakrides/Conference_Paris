@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jun 28 12:56:39 2023
 
@@ -20,13 +19,14 @@ from selenium.webdriver.common.action_chains import ActionChains
 import requests, zipfile, io
 
 
-# Set the path to the WebDriver executable (e.g., chromedriver for Chrome)
+# Set the path to the WebDriver executable (e.g., chromedriver for Chrome), add your own chrome driver
 driver_path = r"C:\Users\user\Documents\chromedriver_win32 (1)\chromedriver.exe"
 # Set the URL of the web page to navigate
 url = 'https://www.ercot.com/mp/data-products/data-product-details?id=NP6-788-CD'
 # Set the target path to click and download files
 target_path = '//*[@id="reportTable"]/tbody'
 
+#get your current path
 path = os.getcwd()
 
 # Configure Chrome options
