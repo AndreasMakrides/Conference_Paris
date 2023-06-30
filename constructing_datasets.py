@@ -1,3 +1,7 @@
+'''
+Author : Andreas Makrides 
+'''
+
 import os
 import pandas as pd
 #remove warnings
@@ -64,30 +68,39 @@ for file_name in file_list:
         
         # Append the modified dataframe to the list
         new_df.append(df)
-    
+        
+#take a part of the nodes that are on the load zone west  
 LZ_WEST_nodes = ["LZ_WEST","AEEC","BCATWD_WD_1","BLSMT1_5_A_6","BOOTLEG_UN1","BRISCOE_WIND","CASL_GAP_UN1","CFLATS_UNIT","CN_BRKS_UNT1","COTPLNS_RN","ELECTRAW_1_2","FOARDCTY_ALL","GPASTURE_ALL","GRANDVW1_A_B","HICK_G1_G2","HORSECRK_RN","HOVEY_GEN","HRFDWIND_ALL","HWF_HWFG1","INDN_INDNNWP","KEO_KEO_SM1","LAMESASLR_G","LASSO_GEN","LGD_LANGFORD","LHORN_N_U1_2","LNCRK_ALL","MARIAH_ALL","MESQCRK_ALL","MIAM1_G1_G2","MISAE_GEN_RN","MOZART_WIND1","NBOHR_RN","NWF_NWF1","OECCS_1","PB2SES_CT1","PH1_UNIT1_2","PHOEBE_ALL","RANCHERO_ALL","REROCK_ALL","RIGGIN_UNIT1","RN_ECEC_HOLT","ROUTE66_RN","RSK_RN","SALVTION_GEN","SLTFRK_UN1_2","SOLARA_UNIT1","SPLAIN1_RN","SPLAIN2_RN","SRWE1_UNIT1","SSPURT_WIND1","SWEC_G1","S_HILLS_RN","TAHOKA_ALL","TRINITY_ALL","WAKEWE_ALL","WAYMARK_RN","WEC_WECG1","WFCOGEN_CC1","WL_RANCH_RN","W_PECO_UNIT1"]
 df_filtered = final[final.index.isin(LZ_WEST_nodes)]
 
+#reorder the columns of dataframes
 columns = df_filtered.columns[::-1]
 df_filtered = df_filtered[columns]
 
+#format data
 row_index = df_filtered.index.get_loc('LZ_WEST')
 first_row = df_filtered.iloc[row_index]
 df_filtered = pd.concat([first_row.to_frame().T, df_filtered.drop('LZ_WEST')])
 
+#Profit = Price_Difference*Quantity_of_Electricity
+
+#Price Difference Calculation
 Price_Diff = df_filtered.copy()
 for column in Price_Diff.columns:
     first_value = Price_Diff[column].iloc[0]  # Get the first value of the column
     Price_Diff[column][1:] = Price_Diff[column][1:] - first_value
  
+#Define the Quantity of Electricity
 Quantity_of_Electricity = 0.25
+
+#Profit Calculation
 Profit = df_filtered.copy()
 for column in Profit.columns:
     Profit[column][1:] = Price_Diff[column][1:] * Quantity_of_Electricity
 
-#Profit = Price_Difference*Quantity_of_Electricity
 
 
+#export the 3 dataframes
 dataframes = [Profit, Price_Diff, df_filtered]
 
 # Specify the base file path for the Excel files
@@ -101,8 +114,8 @@ for i, df in enumerate(dataframes):
     # Export the dataframe to Excel with the string index
     df.to_excel(file_path, index=True, index_label="Index")
 
-
-
+# AND/OR 
+#Export each dataframe, each excel sheet is a different date
 df = Profit.copy()
 # Convert column names to datetime objects
 df.columns = pd.to_datetime(df.columns)
@@ -122,6 +135,7 @@ with pd.ExcelWriter('Profit.xlsx') as writer:
         date_df.to_excel(writer, sheet_name=str(date), index=True)
         
 
+#Export each dataframe, each excel sheet is a different date
 df = Price_Diff.copy()
 # Convert column names to datetime objects
 df.columns = pd.to_datetime(df.columns)
@@ -141,7 +155,7 @@ with pd.ExcelWriter('Price_Diff.xlsx') as writer:
         date_df.to_excel(writer, sheet_name=str(date), index=True)
         
         
-
+#Export each dataframe, each excel sheet is a different date
 df = df_filtered.copy()
 # Convert column names to datetime objects
 df.columns = pd.to_datetime(df.columns)
